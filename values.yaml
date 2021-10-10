@@ -4,12 +4,14 @@
 
 replicaCount: 1
 
+minecraftVersion: "1.17"
+
 image:
   renderer:
-    repository: "TheDruidsKeeper/minecraft-overviewer-docker"
+    repository: "mide/minecraft-overviewer"
     pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.
-    tag: ""
+    tag: "latest"
   display:
     repository: nginx
     pullPolicy: IfNotPresent
@@ -109,7 +111,7 @@ world:  # Name of volume from minecraft server
   emptyDir: {}
 
 map:
-  persistent: true
+  persistent: false
   storageClass:
   accessModes:
     - ReadWriteOnce

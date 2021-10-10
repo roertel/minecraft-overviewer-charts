@@ -51,6 +51,41 @@ spec:
             - name: map
               mountPath: /usr/share/nginx/html
               readOnly: true
+      volumes:
+        - name: map
+        {{- if .Values.map.persistent }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.map.existingClaim | quote }}
+#            - metadata:
+#                name: database
+#                labels:
+#                  app.kubernetes.io/name: {{ include "minecraft-overviewer.name" . }}
+#                  app.kubernetes.io/instance: {{ .Release.Name }}
+#                  app.kubernetes.io/managed-by: {{ .Release.Service }}
+#              spec:
+#                accessModes:
+#                {{- range .Values.map.accessModes }}
+#                  - {{ . | quote }}
+#                {{- end }}
+#                resources:
+#                  requests:
+#                    storage: {{ .Values.map.size | quote }}
+#                {{ if .Values.map.existingClaim }}
+#                selector:
+#                  matchLabels:
+#                    name: {{ .Values.map.existingClaim | quote }}
+#                {{- else }}
+#                {{- if .Values.map.storageClass }}
+#                {{- if (eq "-" .Values.map.storageClass) }}
+#                storageClassName: ""
+#                {{- else }}
+#                storageClassName: {{ .Values.map.storageClass | quote }}
+#                {{- end }}
+#                {{- end }}
+#                {{- end }}
+        {{- else }}
+          emptyDir: {}
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -63,38 +98,3 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-    volumes:
-      {{- if not .Values.map.persistent }}
-      - name: map
-        emptyDir: {}
-      {{- end }}
-  {{- if .Values.map.persistent }}
-  volumeClaimTemplates:
-  - metadata:
-      name: database
-      labels:
-        app.kubernetes.io/name: {{ include "minecraft-overviewer.name" . }}
-        app.kubernetes.io/instance: {{ .Release.Name }}
-        app.kubernetes.io/managed-by: {{ .Release.Service }}
-    spec:
-      accessModes:
-      {{- range .Values.map.accessModes }}
-        - {{ . | quote }}
-      {{- end }}
-      resources:
-        requests:
-          storage: {{ .Values.map.size | quote }}
-      {{ if .Values.map.existingClaim }}
-      selector:
-        matchLabels:
-          name: {{ .Values.map.existingClaim | quote }}
-      {{- else }}
-      {{- if .Values.map.storageClass }}
-      {{- if (eq "-" .Values.map.storageClass) }}
-      storageClassName: ""
-      {{- else }}
-      storageClassName: {{ .Values.map.storageClass | quote }}
-      {{- end }}
-      {{- end }}
-      {{- end }}
-  {{- end }}

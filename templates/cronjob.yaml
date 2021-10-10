@@ -25,6 +25,27 @@ spec:
           - name: {{ .Chart.Name }}
             image: "{{ .Values.image.renderer.repository }}:{{ .Values.image.renderer.tag | default .Chart.AppVersion }}"
             imagePullPolicy: {{ .Values.image.renderer.pullPolicy }}
+            env:
+              - name: CONFIG_LOCATION
+                value: /opt/config.py
+              - name: MINECRAFT_VERSION
+                value: {{ .Values.minecraftVersion }}
+            volumeMounts:
+              - name: config
+                mountPath: /opt
+                readOnly: true
+              - name: world
+                mountPath: /home/minecraft/server/
+                readOnly: true
+              - name: map
+                mountPath: /home/minecraft/render/
+                readOnly: false
+          volumes:
+            - name: config
+              configMap:
+                name: config.py
+            - name: world
+            - name: map
           restartPolicy: OnFailure
           {{- with .Values.nodeSelector }}
           nodeSelector:
@@ -38,19 +59,3 @@ spec:
           tolerations:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          volumeMounts:
-            - name: config
-              mountPath: /opt
-              readOnly: true
-            - name: world
-              mountPath: /srv/world
-              readOnly: true
-            - name: map
-              mountPath: /tmp/overviewer
-              readOnly: false
-        volumes:
-          - name: config
-            configMap:
-              name: config.py
-          - name: world
-          - name: map
