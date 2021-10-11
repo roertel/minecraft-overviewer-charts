@@ -1,3 +1,4 @@
+# Where to set concurrent policy to false?
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -6,6 +7,7 @@ metadata:
     {{- include "minecraft-overviewer.labels" . | nindent 4 }}
 spec:
   schedule: "{{ .Values.regenerationSchedule }}"
+  concurrencyPolicy: Forbid
   jobTemplate:
     spec:
       template:
@@ -27,9 +29,9 @@ spec:
             imagePullPolicy: {{ .Values.image.renderer.pullPolicy }}
             env:
               - name: CONFIG_LOCATION
-                value: /opt/config.py
+                value: "/opt/config.py"
               - name: MINECRAFT_VERSION
-                value: {{ .Values.minecraftVersion }}
+                value: "{{ .Values.minecraftVersion }}"
             volumeMounts:
               - name: config
                 mountPath: /opt
@@ -43,7 +45,7 @@ spec:
           volumes:
             - name: config
               configMap:
-                name: config.py
+                name: {{ include "minecraft-overviewer.fullname" . }}
             - name: world
             - name: map
           restartPolicy: OnFailure
