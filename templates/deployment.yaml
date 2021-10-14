@@ -27,6 +27,13 @@ spec:
       serviceAccountName: {{ include "minecraft-overviewer.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:  # One time setup to create index.html if the www is empty
+        - name: init-{{ .Chart.Name }}
+          image: busybox
+          command: ['sh', '-c', 'touch /usr/share/nginx/html/index.html']
+          volumeMounts:
+            - name: map
+              mountPath: /usr/share/nginx/html
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
@@ -55,7 +62,7 @@ spec:
         - name: map
         {{- if .Values.map.persistent }}
           persistentVolumeClaim:
-            claimName: {{ .Values.map.existingClaim | quote }}
+            claimName: {{ include "minecraft-overviewer.fullname" . }}
 #            - metadata:
 #                name: database
 #                labels:

@@ -98,17 +98,12 @@ tolerations: []
 
 affinity: {}
 
-textures:
-  emptyDir: {}
+world: {}  # Name of volume from minecraft server
+  # claimName: minecraft-data
 
-world:  # Name of volume from minecraft server
-  emptyDir: {}
-
-map:
+map:  # where to store generated map
   persistent: false
-  storageClass:
-  accessModes:
-    - ReadWriteOnce
+  storageClassName: ""
   size: 1Gi
 
 config:

@@ -28,8 +28,8 @@ spec:
             image: "{{ .Values.image.renderer.repository }}:{{ .Values.image.renderer.tag | default .Chart.AppVersion }}"
             imagePullPolicy: {{ .Values.image.renderer.pullPolicy }}
             env:
-              - name: CONFIG_LOCATION
-                value: "/opt/config.py"
+              # - name: CONFIG_LOCATION
+              #   value: "/opt/config.py"
               - name: MINECRAFT_VERSION
                 value: "{{ .Values.minecraftVersion }}"
             volumeMounts:
@@ -47,7 +47,15 @@ spec:
               configMap:
                 name: {{ include "minecraft-overviewer.fullname" . }}
             - name: world
+              {{- if .Values.world.claimName }}
+              persistentVolumeClaim:
+                claimName: {{ .Values.world.claimName }}
+              {{- end }}
             - name: map
+              {{- if .Values.map.persistent }}
+              persistentVolumeClaim:
+                claimName: {{ include "minecraft-overviewer.fullname" . }}
+              {{- end }}
           restartPolicy: OnFailure
           {{- with .Values.nodeSelector }}
           nodeSelector:
